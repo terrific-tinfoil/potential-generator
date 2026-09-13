@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potential Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Bebas Neue & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        .font-bebas {
+            font-family: 'Bebas Neue', cursive, sans-serif;
+        }
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #161b22;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+        /* Canvas shadow glow */
+        .canvas-container {
+            box-shadow: 0 0 35px rgba(0, 102, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="border-b border-gray-800 bg-gray-950/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div>
+                <h1 class="text-xl font-bold text-white leading-tight font-bebas tracking-wide">POTENTIAL GENERATOR</h1>
+                <p class="text-xs font-mono text-blue-400 tracking-wider">@terrific_tinfoil</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="reset-btn" class="px-3 py-1.5 text-xs font-semibold rounded-md border border-gray-700 hover:bg-gray-800 text-gray-300 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i> Reset
+                </button>
+                <button id="download-btn" class="px-4 py-1.5 text-xs font-bold rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2">
+                    <i class="fa-solid fa-download"></i> Export Image
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Controls Sidebar (Left Column) -->
+        <section class="lg:col-span-6 bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col space-y-6 shadow-xl h-fit">
+
+            <div class="space-y-4">
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">1. Text Content & Sizing</label>
+                
+                <!-- Top Text -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-medium text-gray-300">Top Line Text</span>
+                        <span id="top-size-val" class="text-xs font-mono text-blue-400">110px</span>
+                    </div>
+                    <input type="text" id="top-text-input" value="SAMPLE TOP" placeholder="Enter top text..." class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm font-bebas tracking-wide text-white focus:outline-none focus:border-blue-500 transition-all">
+                    <input type="range" id="top-size-slider" min="10" max="300" value="110" class="w-full accent-blue-500 bg-gray-950 h-2 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Bottom Text -->
+                <div class="space-y-2 pt-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-medium text-gray-300">Bottom Line Text</span>
+                        <span id="bottom-size-val" class="text-xs font-mono text-blue-400">200px</span>
+                    </div>
+                    <input type="text" id="bottom-text-input" value="SAMPLE BOTTOM" placeholder="Enter bottom text..." class="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm font-bebas tracking-wide text-white focus:outline-none focus:border-blue-500 transition-all">
+                    <input type="range" id="bottom-size-slider" min="10" max="300" value="200" class="w-full accent-blue-500 bg-gray-950 h-2 rounded-lg cursor-pointer">
+                </div>
+            </div>
+
+            <hr class="border-gray-800">
+
+            <div class="space-y-4">
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">2. Colors & Glow FX</label>
+                
+                <!-- Gradient & Glow Colors -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] text-gray-400 mb-1">Text Top Color</label>
+                        <div class="flex items-center gap-2 bg-gray-950 p-1.5 border border-gray-800 rounded-lg">
+                            <input type="color" id="grad-top" value="#FFFFFF" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent">
+                            <span id="grad-top-hex" class="text-[10px] font-mono text-gray-400">#FFFFFF</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-gray-400 mb-1">Text Bottom Color</label>
+                        <div class="flex items-center gap-2 bg-gray-950 p-1.5 border border-gray-800 rounded-lg">
+                            <input type="color" id="grad-bottom" value="#5299FF" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent">
+                            <span id="grad-bottom-hex" class="text-[10px] font-mono text-gray-400">#5299FF</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-gray-400 mb-1">Neon Glow Color</label>
+                        <div class="flex items-center gap-2 bg-gray-950 p-1.5 border border-gray-800 rounded-lg">
+                            <input type="color" id="glow-color" value="#0066FF" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent">
+                            <span id="glow-color-hex" class="text-[10px] font-mono text-gray-400">#0066FF</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-gray-400 mb-1">Outline Stroke Color</label>
+                        <div class="flex items-center gap-2 bg-gray-950 p-1.5 border border-gray-800 rounded-lg">
+                            <input type="color" id="stroke-color" value="#002B66" class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent">
+                            <span id="stroke-color-hex" class="text-[10px] font-mono text-gray-400">#002B66</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sliders for Glow & Stroke -->
+                <div class="space-y-3 pt-2">
+                    <div>
+                        <div class="flex justify-between text-xs text-gray-400 mb-1">
+                            <span>Neon Glow Radius</span>
+                            <span id="glow-val" class="font-mono text-blue-400">30px</span>
+                        </div>
+                        <input type="range" id="glow-slider" min="0" max="120" value="30" class="w-full accent-blue-500 bg-gray-950 h-2 rounded-lg cursor-pointer">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs text-gray-400 mb-1">
+                            <span>Outline Thickness</span>
+                            <span id="stroke-val" class="font-mono text-blue-400">0px</span>
+                        </div>
+                        <input type="range" id="stroke-slider" min="0" max="30" step="0.5" value="0" class="w-full accent-blue-500 bg-gray-950 h-2 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-800">
+
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">3. Position & Spacing</label>
+                    <span class="text-[11px] text-gray-500"><i class="fa-solid fa-arrows-up-down-left-right text-xs"></i> Drag on preview</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <div class="flex justify-between text-xs text-gray-400 mb-1">
+                            <span>X Position</span>
+                            <span id="pos-x-val" class="font-mono text-gray-400">3%</span>
+                        </div>
+                        <input type="range" id="pos-x-slider" min="0" max="100" value="3" class="w-full accent-blue-500 bg-gray-950 h-2 rounded-lg cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs text-gray-400 mb-1">
+                            <span>Y Position</span>
+                            <span id="pos-y-val" class="font-mono text-gray-400">55%</span>
+                        </div>
+                        <input type="range" id="pos-y-slider" min="0" max="100" value="55" class="w-full accent-blue-500 bg-gray-950 h-2 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="flex justify-between text-xs text-gray-400 mb-1">
+                        <span>Line Spacing</span>
+                        <span id="line-height-val" class="font-mono text-gray-400">1.5</span>
+                    </div>
+                    <input type="range" id="line-height-slider" min="0.2" max="3.0" step="0.05" value="1.5" class="w-full accent-blue-500 bg-gray-950 h-2 rounded-lg cursor-pointer">
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Preview Area (Right Column) -->
+        <section class="lg:col-span-6 flex flex-col items-center justify-start space-y-4">
+            
+            <div class="w-full bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col items-center justify-center min-h-[450px] canvas-container relative">
+                
+                <!-- Canvas Loading Overlay -->
+                <div id="loading-spinner" class="absolute inset-0 bg-gray-950/80 backdrop-blur-sm flex items-center justify-center rounded-xl z-20 hidden">
+                    <div class="flex flex-col items-center">
+                        <i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-3xl mb-2"></i>
+                        <span class="text-sm font-medium text-gray-300">Rendering Canvas...</span>
+                    </div>
+                </div>
+
+                <!-- Canvas Component -->
+                <div class="relative w-full overflow-hidden flex items-center justify-center rounded-lg bg-black border border-gray-800">
+                    <canvas id="meme-canvas" class="max-w-full max-h-[70vh] object-contain cursor-grab active:cursor-grabbing"></canvas>
+                </div>
+
+                <!-- Background Image Source Buttons (Moved below canvas) -->
+                <div class="w-full mt-4 grid grid-cols-2 gap-3">
+                    <label class="cursor-pointer border border-dashed border-gray-700 bg-gray-950/70 hover:bg-gray-800 hover:border-blue-500 transition-all rounded-lg p-2.5 flex items-center justify-center gap-2 text-center">
+                        <i class="fa-solid fa-cloud-arrow-up text-blue-400 text-sm"></i>
+                        <span class="text-xs font-semibold text-gray-300">Upload Blank Image</span>
+                        <input type="file" id="image-upload" accept="image/*" class="hidden">
+                    </label>
+                    <button id="use-sample-btn" class="border border-gray-700 bg-gray-950/70 hover:bg-gray-800 hover:border-blue-500 transition-all rounded-lg p-2.5 flex items-center justify-center gap-2 text-center">
+                        <i class="fa-solid fa-image text-purple-400 text-sm"></i>
+                        <span class="text-xs font-semibold text-gray-300">Default Template</span>
+                    </button>
+                </div>
+
+                <!-- Copy to Clipboard Buttons -->
+                <div class="w-full mt-3 grid grid-cols-2 gap-3">
+                    <button id="copy-btn" class="border border-gray-700 bg-gray-950/70 hover:bg-gray-800 hover:border-blue-500 transition-all rounded-lg p-2.5 flex items-center justify-center gap-2 text-center">
+                        <i class="fa-solid fa-copy text-teal-400 text-sm"></i>
+                        <span class="text-xs font-semibold text-gray-300">Copy to Clipboard</span>
+                    </button>
+                    <button id="copy-half-btn" class="border border-gray-700 bg-gray-950/70 hover:bg-gray-800 hover:border-blue-500 transition-all rounded-lg p-2.5 flex items-center justify-center gap-2 text-center">
+                        <i class="fa-solid fa-compress text-amber-400 text-sm"></i>
+                        <span class="text-xs font-semibold text-gray-300">Copy (1/2 Size)</span>
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-lg text-xs font-semibold text-white shadow-xl flex items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none translate-y-2 bg-emerald-600">
+        <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">Copied to clipboard!</span>
+    </div>
+
+    <script>
+        // UI Elements
+        const canvas = document.getElementById('meme-canvas');
+        const ctx = canvas.getContext('2d');
+        const imageUpload = document.getElementById('image-upload');
+        const useSampleBtn = document.getElementById('use-sample-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const copyHalfBtn = document.getElementById('copy-half-btn');
+        const toastNotification = document.getElementById('toast-notification');
+        const toastMessage = document.getElementById('toast-message');
+        const toastIcon = document.getElementById('toast-icon');
+
+        // Text Inputs
+        const topTextInput = document.getElementById('top-text-input');
+        const bottomTextInput = document.getElementById('bottom-text-input');
+
+        // Color Inputs
+        const gradTopInput = document.getElementById('grad-top');
+        const gradBottomInput = document.getElementById('grad-bottom');
+        const glowColorInput = document.getElementById('glow-color');
+        const strokeColorInput = document.getElementById('stroke-color');
+        
+        const gradTopHex = document.getElementById('grad-top-hex');
+        const gradBottomHex = document.getElementById('grad-bottom-hex');
+        const glowColorHex = document.getElementById('glow-color-hex');
+        const strokeColorHex = document.getElementById('stroke-color-hex');
+
+        // Slider Controls
+        const topSizeSlider = document.getElementById('top-size-slider');
+        const bottomSizeSlider = document.getElementById('bottom-size-slider');
+        const glowSlider = document.getElementById('glow-slider');
+        const strokeSlider = document.getElementById('stroke-slider');
+
+        const topSizeVal = document.getElementById('top-size-val');
+        const bottomSizeVal = document.getElementById('bottom-size-val');
+        const glowVal = document.getElementById('glow-val');
+        const strokeVal = document.getElementById('stroke-val');
+
+        const posXSlider = document.getElementById('pos-x-slider');
+        const posYSlider = document.getElementById('pos-y-slider');
+        const lineHeightSlider = document.getElementById('line-height-slider');
+
+        const posXVal = document.getElementById('pos-x-val');
+        const posYVal = document.getElementById('pos-y-val');
+        const lineHeightVal = document.getElementById('line-height-val');
+
+        // State Variables
+        let currentImage = new Image();
+        let isDragging = false;
+        let textPosPercentX = 0.03; // 3% from left
+        let textPosPercentY = 0.55; // 55% from top
+
+        // Fallback Blank Template Generator (styled like dark anime scene)
+        function generateDefaultTemplate() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 1280;
+            tempCanvas.height = 720;
+            const tCtx = tempCanvas.getContext('2d');
+
+            // Dark anime-style background gradient
+            const bgGradient = tCtx.createRadialGradient(900, 360, 50, 900, 360, 800);
+            bgGradient.addColorStop(0, '#1a2238');
+            bgGradient.addColorStop(0.5, '#0b0f19');
+            bgGradient.addColorStop(1, '#030508');
+
+            tCtx.fillStyle = bgGradient;
+            tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+            // Add simple silhouette shadow line
+            tCtx.fillStyle = '#06080d';
+            tCtx.beginPath();
+            tCtx.moveTo(750, 0);
+            tCtx.lineTo(1280, 0);
+            tCtx.lineTo(1280, 720);
+            tCtx.lineTo(600, 720);
+            tCtx.closePath();
+            tCtx.fill();
+
+            return tempCanvas.toDataURL();
+        }
+
+        // Load Default Image
+        function loadDefaultImage() {
+            currentImage.crossOrigin = "anonymous";
+            currentImage.onload = () => {
+                canvas.width = currentImage.width || 1280;
+                canvas.height = currentImage.height || 720;
+                render();
+            };
+            currentImage.src = generateDefaultTemplate();
+        }
+
+        function render() {
+            if (!currentImage.complete) return;
+
+            // Clear Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Draw Background Image
+            ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+
+            // Ensure font is loaded before drawing text
+            document.fonts.load('10px "Bebas Neue"').then(() => {
+                drawTextOverlay();
+            });
+        }
+
+        function drawTextOverlay() {
+            const topText = topTextInput.value.trim();
+            const bottomText = bottomTextInput.value.trim();
+
+            if (!topText && !bottomText) return;
+
+            const basePosX = canvas.width * textPosPercentX;
+            const basePosY = canvas.height * textPosPercentY;
+
+            const topFontSize = parseInt(topSizeSlider.value, 10);
+            const bottomFontSize = parseInt(bottomSizeSlider.value, 10);
+            const glowRadius = parseInt(glowSlider.value, 10);
+            const strokeWidth = parseFloat(strokeSlider.value);
+            const lineHeightMultiplier = parseFloat(lineHeightSlider.value);
+
+            // Colors
+            const topColor = gradTopInput.value;
+            const bottomColor = gradBottomInput.value;
+            const glowColor = glowColorInput.value;
+            const strokeColor = strokeColorInput.value;
+
+            ctx.save();
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+
+            // Function to render text line matching reference glow & gradient style
+            function drawGlowTextLine(text, fontSize, yOffset) {
+                if (!text) return;
+
+                ctx.font = `900 ${fontSize}px "Bebas Neue", sans-serif`;
+
+                // Linear Gradient fill matching reference white-to-blue text
+                const gradient = ctx.createLinearGradient(0, yOffset - fontSize * 0.85, 0, yOffset);
+                gradient.addColorStop(0, topColor);
+                gradient.addColorStop(1, bottomColor);
+
+                // --- PASS 1: Intense Blue Glow Pass ---
+                if (glowRadius > 0) {
+                    ctx.save();
+                    ctx.shadowColor = glowColor;
+                    ctx.shadowBlur = glowRadius;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 0;
+                    
+                    // Layer glowing fills for deep vibrant effect matching original
+                    ctx.fillStyle = glowColor;
+                    ctx.fillText(text, basePosX, yOffset);
+                    ctx.fillText(text, basePosX, yOffset);
+                    ctx.restore();
+                }
+
+                // --- PASS 2: Crisp Gradient Fill ---
+                ctx.save();
+                ctx.fillStyle = gradient;
+                ctx.fillText(text, basePosX, yOffset);
+                ctx.restore();
+
+                // --- PASS 3: Crisp Text Outline Pass ---
+                if (strokeWidth > 0) {
+                    ctx.save();
+                    ctx.strokeStyle = strokeColor;
+                    ctx.lineWidth = strokeWidth;
+                    ctx.strokeText(text, basePosX, yOffset);
+                    ctx.restore();
+                }
+            }
+
+            // Draw Top Line
+            drawGlowTextLine(topText, topFontSize, basePosY);
+
+            // Draw Bottom Line below top line
+            if (bottomText) {
+                const spacing = topFontSize * lineHeightMultiplier;
+                drawGlowTextLine(bottomText, bottomFontSize, basePosY + spacing);
+            }
+
+            ctx.restore();
+        }
+
+        function updateHexLabels() {
+            gradTopHex.textContent = gradTopInput.value.toUpperCase();
+            gradBottomHex.textContent = gradBottomInput.value.toUpperCase();
+            glowColorHex.textContent = glowColorInput.value.toUpperCase();
+            strokeColorHex.textContent = strokeColorInput.value.toUpperCase();
+        }
+
+        function updateSliderValues() {
+            topSizeVal.textContent = `${topSizeSlider.value}px`;
+            bottomSizeVal.textContent = `${bottomSizeSlider.value}px`;
+            glowVal.textContent = `${glowSlider.value}px`;
+            strokeVal.textContent = `${strokeSlider.value}px`;
+            
+            posXVal.textContent = `${Math.round(posXSlider.value)}%`;
+            posYVal.textContent = `${Math.round(posYSlider.value)}%`;
+            lineHeightVal.textContent = lineHeightSlider.value;
+
+            textPosPercentX = posXSlider.value / 100;
+            textPosPercentY = posYSlider.value / 100;
+        }
+
+        // Attach Input Change Listeners
+        [topTextInput, bottomTextInput].forEach(el => el.addEventListener('input', render));
+
+        [gradTopInput, gradBottomInput, glowColorInput, strokeColorInput].forEach(el => {
+            el.addEventListener('input', () => {
+                updateHexLabels();
+                render();
+            });
+        });
+
+        [topSizeSlider, bottomSizeSlider, glowSlider, strokeSlider, lineHeightSlider].forEach(el => {
+            el.addEventListener('input', () => {
+                updateSliderValues();
+                render();
+            });
+        });
+
+        posXSlider.addEventListener('input', () => {
+            updateSliderValues();
+            render();
+        });
+
+        posYSlider.addEventListener('input', () => {
+            updateSliderValues();
+            render();
+        });
+
+        // Image Upload Handler
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    currentImage = img;
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    render();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        useSampleBtn.addEventListener('click', loadDefaultImage);
+
+        // Canvas Touch & Mouse Drag Logic
+        function getCanvasCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function startDrag(e) {
+            isDragging = true;
+        }
+
+        function doDrag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            const coords = getCanvasCoordinates(e);
+
+            textPosPercentX = Math.max(0, Math.min(1, coords.x / canvas.width));
+            textPosPercentY = Math.max(0, Math.min(1, coords.y / canvas.height));
+
+            posXSlider.value = Math.round(textPosPercentX * 100);
+            posYSlider.value = Math.round(textPosPercentY * 100);
+            updateSliderValues();
+            render();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+        }
+
+        canvas.addEventListener('mousedown', startDrag);
+        canvas.addEventListener('mousemove', doDrag);
+        window.addEventListener('mouseup', stopDrag);
+
+        canvas.addEventListener('touchstart', startDrag, { passive: false });
+        canvas.addEventListener('touchmove', doDrag, { passive: false });
+        window.addEventListener('touchend', stopDrag);
+
+        // Download PNG Image
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'potential-generator.png';
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        });
+
+        // Toast Feedback Function
+        function showToast(message, isError = false) {
+            toastMessage.textContent = message;
+            if (isError) {
+                toastNotification.className = "fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-lg text-xs font-semibold text-white shadow-xl flex items-center gap-2 transition-all duration-300 bg-red-600 opacity-100 translate-y-0";
+                toastIcon.className = "fa-solid fa-triangle-exclamation";
+            } else {
+                toastNotification.className = "fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-lg text-xs font-semibold text-white shadow-xl flex items-center gap-2 transition-all duration-300 bg-emerald-600 opacity-100 translate-y-0";
+                toastIcon.className = "fa-solid fa-circle-check";
+            }
+
+            setTimeout(() => {
+                toastNotification.className = "fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-lg text-xs font-semibold text-white shadow-xl flex items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none translate-y-2 bg-emerald-600";
+            }, 3000);
+        }
+
+        // Copy Canvas Image to Clipboard (Full or 1/2 Size)
+        async function copyCanvasToClipboard(scale = 1.0) {
+            try {
+                const exportCanvas = document.createElement('canvas');
+                exportCanvas.width = Math.round(canvas.width * scale);
+                exportCanvas.height = Math.round(canvas.height * scale);
+
+                const eCtx = exportCanvas.getContext('2d');
+                eCtx.imageSmoothingEnabled = true;
+                eCtx.imageSmoothingQuality = 'high';
+                eCtx.drawImage(canvas, 0, 0, exportCanvas.width, exportCanvas.height);
+
+                exportCanvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        showToast("Failed to process image.", true);
+                        return;
+                    }
+                    try {
+                        const item = new ClipboardItem({ 'image/png': blob });
+                        await navigator.clipboard.write([item]);
+                        const label = scale === 0.5 ? " (1/2 Size)" : "";
+                        showToast(`Copied to clipboard${label}!`);
+                    } catch (err) {
+                        console.error("Clipboard error:", err);
+                        showToast("Clipboard write permission denied.", true);
+                    }
+                }, 'image/png');
+            } catch (err) {
+                console.error("Copy error:", err);
+                showToast("Unable to copy image.", true);
+            }
+        }
+
+        copyBtn.addEventListener('click', () => copyCanvasToClipboard(1.0));
+        copyHalfBtn.addEventListener('click', () => copyCanvasToClipboard(0.5));
+
+        // Reset Settings to Exact Reference Match Defaults
+        resetBtn.addEventListener('click', () => {
+            topTextInput.value = "SAMPLE TOP";
+            bottomTextInput.value = "SAMPLE BOTTOM";
+            gradTopInput.value = "#FFFFFF";
+            gradBottomInput.value = "#5299FF";
+            glowColorInput.value = "#0066FF";
+            strokeColorInput.value = "#002B66";
+            topSizeSlider.value = 110;
+            bottomSizeSlider.value = 200;
+            glowSlider.value = 30;
+            strokeSlider.value = 0;
+            posXSlider.value = 3;
+            posYSlider.value = 55;
+            lineHeightSlider.value = 1.5;
+
+            updateHexLabels();
+            updateSliderValues();
+            loadDefaultImage();
+        });
+
+        window.onload = () => {
+            updateHexLabels();
+            updateSliderValues();
+            
+            document.fonts.ready.then(() => {
+                loadDefaultImage();
+            });
+        };
+    </script>
+</body>
+</html>
